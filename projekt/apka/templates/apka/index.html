@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Our Site</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'apka/styles.css' %}">
+</head>
+<body>
+    <div class="navbar">
+        <h1>AI social media site</h1>
+    </div>
+    <div class="main">
+        <div class="container">
+            Create post
+            <form class="form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input class="form_title" type="text" id="id_title" name="title" placeholder="Title">
+                <textarea class="form_content" id="id_content" name="content" rows="2" placeholder="Content"></textarea>
+                <label for="id_image" class="form_image">
+                    Upload image
+                    <input type="file" id="id_image" name="image" accept="image/*" style="display: none;">
+                </label>                
+                <img id="preview-img" src="#" style="display: none;">
+                <button class="form_button" type="submit">Post</button>
+            </form>
+        </div>
+        <div class="posts">
+            {% for post in posts %}
+                <div class="container">
+                    <span class="title">{{ post.title }}</span>
+                    <span class="content">{{ post.content }}</span>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="Post Image">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>        
+    </div>
+</body>
+</html>
+
+<script>
+    document.getElementById('id_image').addEventListener('change', function() {
+        const file = this.files[0];
+        const imgPreview = document.getElementById('preview-img');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                imgPreview.src = event.target.result;
+                imgPreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            imgPreview.style.display = 'none';
+        }
+    });
+</script>
