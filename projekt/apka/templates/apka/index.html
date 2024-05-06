@@ -12,12 +12,13 @@
         <h1>AI social media site</h1>
     </div>
     <div class="main">
-        <div class="container">
+        <div class="container create_post">
             Create post
             <form class="form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input class="form_title" type="text" id="id_title" name="title" placeholder="Title">
                 <textarea class="form_content" id="id_content" name="content" rows="2" placeholder="Content"></textarea>
+                <!-- <button class="generate_button">Generate picture</button> -->
                 <label for="id_image" class="form_image">
                     Upload image
                     <input type="file" id="id_image" name="image" accept="image/*" style="display: none;">
