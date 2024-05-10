@@ -131,3 +131,4 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 REPLICATE_API_TOKEN=os.environ.get('REPLICATE_API_TOKEN')
+LOGIN_REDIRECT_URL = '/apka'

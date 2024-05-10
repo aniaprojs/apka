@@ -32,7 +32,20 @@ body {
 }
 
 .create_post {
-    height: 300px;
+    height: 340px;
+}
+
+#preview-img{
+    max-height: 300px;
+    width: auto;
+    object-fit: contain;
+}
+
+#post_image{
+    max-width: 400px;
+    height: auto;
+    object-fit: contain;
+    margin: 0 auto;
 }
 
 .title {
