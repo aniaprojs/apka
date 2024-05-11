@@ -6,12 +6,13 @@ import os
 from replicate.client import Client
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from .forms import SignUpForm
+from django.shortcuts import HttpResponse
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        print(username, password)
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -24,12 +25,23 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        print(form)
+        if form.is_valid():
+            print("VALID")
+            form.save()
+            return redirect('apka/login')
+    else:
+        form = SignUpForm()
+    return render(request, 'apka/signup.html', {'form': form})
+
 def index(request):
     if 'sessionid' not in request.COOKIES:
         return redirect('logout')
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
-        print(form)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -38,13 +50,24 @@ def index(request):
     else:
         form = PostForm()
 
-    posts = Post.objects.all()
+    posts = Post.objects.all().order_by('-created_at')
 
     context = {
         'posts': posts,
         'form': form
     }
     return render(request, 'apka/index.html', context)
+
+def delete_post(request):
+    if request.method == 'POST':
+        post_id = request.POST.get('post_id')
+        try:
+            post = Post.objects.get(pk=post_id)
+            post.delete()
+            return HttpResponse('Post deleted successfully', status=200)
+        except Post.DoesNotExist:
+            return HttpResponse('Post does not exist', status=404)
+    return HttpResponse('Invalid request method', status=405)
 
 def generate_image(request):
     if request.method == 'POST':

@@ -1,8 +1,23 @@
+{% load static %}
 <!DOCTYPE html>
-<form method="post">
-    {% csrf_token %}
-    {{ error }}
-    <input type="text" name="username" placeholder="Username"><br>
-    <input type="password" name="password" placeholder="Password"><br>
-    <input type="submit" value="Login">
-</form>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'apka/login.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="main">
+        <h1>Log in to apka!</h1>
+        <form class="login" method="post">
+            {% csrf_token %}
+            {{ error }}
+            <input type="text" name="username" placeholder="Username"><br>
+            <input type="password" name="password" placeholder="Password"><br>
+            <input class="button" type="submit" value="Login">
+        </form>
+        <h3>Or go to sign up <a href="{% url 'signup' %}">here</a></h3>
+    </div>
+</body>
