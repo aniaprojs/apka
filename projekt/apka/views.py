@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from .forms import SignUpForm
 from django.shortcuts import HttpResponse
+import requests
 
 def login_view(request):
     if request.method == 'POST':
@@ -40,11 +41,16 @@ def signup(request):
 def index(request):
     if 'sessionid' not in request.COOKIES:
         return redirect('logout')
+    
+    generated_image_url = request.session.pop('generated_image_url', None)
+    print(generated_image_url)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
+            if generated_image_url:
+                post.image = generated_image_url
             post.save()
             return redirect('index')
     else:
@@ -69,6 +75,7 @@ def delete_post(request):
             return HttpResponse('Post does not exist', status=404)
     return HttpResponse('Invalid request method', status=405)
 
+
 def generate_image(request):
     if request.method == 'POST':
         prompt = request.POST.get('prompt')
@@ -81,4 +88,20 @@ def generate_image(request):
             "stability-ai/stable-diffusion:ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4",
             input=input
         )
-        return JsonResponse({'image_url': output[0]})
+        
+        image_url = output[0]
+        
+        image_response = requests.get(image_url)
+        
+        image_name = os.path.basename(image_url)
+        image_path = os.path.join(settings.MEDIA_ROOT, image_name)
+        with open(image_path, 'wb') as f:
+            f.write(image_response.content)
+        
+        relative_image_path = os.path.join(image_name)
+        print(relative_image_path)
+        request.session['generated_image_url'] = relative_image_path
+        
+        return JsonResponse({'image_url': image_url})
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
