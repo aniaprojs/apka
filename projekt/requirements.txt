@@ -1,3 +1,5 @@
 Django>=3.2.12
 replicate>=0.2.2
 python-dotenv>=0.19.1
+spacy
+python -m spacy download en_core_web_sm
