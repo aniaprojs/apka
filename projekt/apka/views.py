@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Post
+from .models import Post, Like
 from .forms import PostForm
 from django.http import JsonResponse
 import os
@@ -42,6 +42,7 @@ def index(request):
     if 'sessionid' not in request.COOKIES:
         return redirect('logout')
     
+    user = request.user
     generated_image_url = request.session.pop('generated_image_url', None)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
@@ -58,6 +59,7 @@ def index(request):
     posts = Post.objects.all().order_by('-created_at')
 
     context = {
+        'user': user,
         'posts': posts,
         'form': form
     }
@@ -101,3 +103,11 @@ def generate_image(request):
         return JsonResponse({'image_url': image_url})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+@login_required
+def like_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    if not created:
+        like.delete()
+    return redirect('index')

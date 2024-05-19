@@ -9,4 +9,5 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('generate-image/', views.generate_image, name='generate_image'),
     path('delete_post/<int:post_id>/', views.delete_post, name='delete_post'),
+    path('like/<int:post_id>/', views.like_post, name='like_post'),
 ]

@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,9 @@
 <body>
     <div class="navbar">
         <h1>AI social media site</h1>
-        <a href="{% url 'logout' %}">Logout</a>
+        <a class="right" href="{% url 'logout' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ff2825" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M9 12h12l-3 -3" /><path d="M18 15l3 -3" /></svg>
+        </a>
     </div>
     <div class="main">
         <div class="container create_post" id="create_post_container">
@@ -41,7 +44,10 @@
                 <div class="container">
                     <div class="post">
                         <div>
-                            <span>{{ post.author }}</span>
+                            <span class="author">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.5" stroke="#00abfb" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                {{ post.author }}
+                            </span>
                         </div>
                         <div class="post_content">
                             <span class="title">{{ post.title }}</span>
@@ -49,14 +55,28 @@
                             {% if post.image %}
                             <img id="post_image" src="{{ post.image.url }}" alt="Post Image">
                             {% endif %}
-                            <span class="content">{{ post.created_at }}</span>
+                            <span class="content">{{ post.likes_count }} likes | {{ post.created_at }}</span>
                         </div>
                         {% if post.author == user %}
-                            <div class="delete">
+                            <div class="right">
                                 <form method="POST" action="{% url 'delete_post' post.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="delete_button">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                        {% if post.author != user %}
+                            <div class="right">
+                                <form action="{% url 'like_post' post.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit">
+                                        {% if post|is_liked_by_user:user %}
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart-broken" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#781716" fill="#ff2825" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /><path d="M12 6l-2 4l4 3l-2 4v3" /></svg>
+                                        {% else %}
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#781716" fill="#ff2825" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
+                                        {% endif %}
                                     </button>
                                 </form>
                             </div>
