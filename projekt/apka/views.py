@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Post, Like
+from .models import Post, Like, Hashtag
 from .forms import PostForm
 from django.http import JsonResponse
 import os
@@ -7,7 +7,6 @@ from replicate.client import Client
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from .forms import SignUpForm
-from django.shortcuts import HttpResponse
 import requests
 from django.contrib.auth.decorators import login_required
 import uuid
@@ -44,6 +43,15 @@ def index(request):
     
     user = request.user
     generated_image_url = request.session.pop('generated_image_url', None)
+
+    if request.method == 'GET':
+        query = request.GET.get('q')
+        if query:
+            posts = Post.search_by_hashtag(query).order_by('-created_at')
+        else:
+            posts = Post.objects.all().order_by('-created_at')
+        return render(request, 'apka/index.html', {'posts': posts})
+    
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -52,6 +60,14 @@ def index(request):
             if generated_image_url:
                 post.image = generated_image_url
             post.save()
+            
+            hashtags_input = form.cleaned_data.get('hashtags')
+            if hashtags_input:
+                hashtags_list = [tag.strip() for tag in hashtags_input.split(',')]
+                for tag in hashtags_list:
+                    hashtag, created = Hashtag.objects.get_or_create(name=tag)
+                    post.hashtags.add(hashtag)
+            
             return redirect('index')
     else:
         form = PostForm()

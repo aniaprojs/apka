@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Our Site</title>
+    <title>Social Media site</title>
     <link rel="stylesheet" type="text/css" href="{% static 'apka/styles.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -23,14 +23,13 @@
                 {% csrf_token %}
                 <input class="form_title" type="text" id="id_title" name="title" placeholder="Title">
                 <textarea class="form_content" id="id_content" name="content" rows="2" placeholder="Content"></textarea>
-                
+                <textarea class="form_content" id="textInput" name="hashtags" placeholder="Enter hashtags separated by commas"></textarea>
                 <label for="id_image" class="form_image">
                     Upload image
                     <input type="file" id="id_image" name="image" accept="image/*" style="display: none;">
                 </label>
 
-                <span>or</span>
-
+                <span>or</span>                
                 <textarea class="form_content" id="textInput" placeholder="Enter prompt"></textarea>
                 <button type="button" onclick="generateImage()">Generate Image</button>
                 <input type="hidden" id="generated_image_url" name="generated_image_url">
@@ -40,6 +39,12 @@
             </form>
         </div>
         <div class="posts">
+            <div class="container">
+                <form action="" method="GET">
+                    <input type="text" name="q" placeholder="Search by hashtag">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
             {% for post in posts %}
                 <div class="container">
                     <div class="post">
@@ -56,6 +61,11 @@
                             <img id="post_image" src="{{ post.image.url }}" alt="Post Image">
                             {% endif %}
                             <span class="content">{{ post.likes_count }} likes | {{ post.created_at }}</span>
+                            <span class="hashtag">
+                                {% for hashtag in post.get_hashtags %}
+                                    #{{ hashtag.name }}
+                                {% endfor %}
+                            </span>
                         </div>
                         {% if post.author == user %}
                             <div class="right">
@@ -100,10 +110,10 @@
                     imgPreview.src = event.target.result;
                     imgPreview.style.display = 'block';
                 }
-                $('#create_post_container').css('height', '640px');
+                $('#create_post_container').css('height', '700px');
                 reader.readAsDataURL(file);
             } else {
-                $('#create_post_container').css('height', '340px');
+                $('#create_post_container').css('height', '400px');
                 imgPreview.style.display = 'none';
             }
         });
@@ -124,7 +134,7 @@
                     $('#preview-img').attr('src', imageUrl);
                     $('#preview-img').css('display', 'block');
                     $('#generated_image_url').val(response.image_url);
-                    $('#create_post_container').css('height', '640px');
+                    $('#create_post_container').css('height', '700px');
                 }
             });
         }

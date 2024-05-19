@@ -4,9 +4,11 @@ from .models import Post, User
 from django.contrib.auth.forms import UserCreationForm
 
 class PostForm(forms.ModelForm):
+    hashtags = forms.CharField(max_length=200, required=False, help_text='Enter hashtags separated by commas')
+    
     class Meta:
         model = Post
-        fields = ['title', 'content', 'image']
+        fields = ['title', 'content', 'image', 'hashtags']
 
 class SignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):

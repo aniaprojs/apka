@@ -56,7 +56,11 @@ body {
 }
 
 .create_post {
-    height: 340px;
+    height: 400px;
+}
+
+.hashtag {
+    color: rgb(50, 78, 168);
 }
 
 #preview-img{
