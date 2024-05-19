@@ -13,7 +13,7 @@
     <div class="navbar">
         <h1>AI social media site</h1>
         <a class="right" href="{% url 'logout' %}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ff2825" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M9 12h12l-3 -3" /><path d="M18 15l3 -3" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#b969a8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M9 12h12l-3 -3" /><path d="M18 15l3 -3" /></svg>
         </a>
     </div>
     <div class="main">
@@ -22,18 +22,20 @@
             <form class="form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input class="form_title" type="text" id="id_title" name="title" placeholder="Title">
+                <button type="button" onclick="generateTitle()">Generate Title</button>
                 <textarea class="form_content" id="id_content" name="content" rows="2" placeholder="Content"></textarea>
-                <textarea class="form_content" id="textInput" name="hashtags" placeholder="Enter hashtags separated by commas"></textarea>
+                <textarea class="form_content" id="id_hashtags" name="hashtags" rows="1" placeholder="Hashtags"></textarea>
+                <button type="button" onclick="generateHashtags()">Generate Hashtags</button>
                 <label for="id_image" class="form_image">
                     Upload image
                     <input type="file" id="id_image" name="image" accept="image/*" style="display: none;">
                 </label>
-
-                <span>or</span>                
+            
+                <span>or</span>
                 <textarea class="form_content" id="textInput" placeholder="Enter prompt"></textarea>
                 <button type="button" onclick="generateImage()">Generate Image</button>
                 <input type="hidden" id="generated_image_url" name="generated_image_url">
-
+                        
                 <img id="preview-img" src="#" style="display: none;">
                 <button class="form_button" type="submit">Post</button>
             </form>
@@ -50,7 +52,7 @@
                     <div class="post">
                         <div>
                             <span class="author">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.5" stroke="#00abfb" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.5" stroke="#b969a8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
                                 {{ post.author }}
                             </span>
                         </div>
@@ -110,10 +112,10 @@
                     imgPreview.src = event.target.result;
                     imgPreview.style.display = 'block';
                 }
-                $('#create_post_container').css('height', '700px');
+                $('#create_post_container').css('height', '750px');
                 reader.readAsDataURL(file);
             } else {
-                $('#create_post_container').css('height', '400px');
+                $('#create_post_container').css('height', '450px');
                 imgPreview.style.display = 'none';
             }
         });
@@ -130,14 +132,54 @@
                 },
                 success: function(response) {
                     var imageUrl = response.image_url;
-                    console.log(imageUrl)
                     $('#preview-img').attr('src', imageUrl);
                     $('#preview-img').css('display', 'block');
                     $('#generated_image_url').val(response.image_url);
-                    $('#create_post_container').css('height', '700px');
+                    $('#create_post_container').css('height', '750px');
                 }
             });
         }
         window.generateImage = generateImage;
+
+        function generateTitle() {
+            var content = $('#id_content').val();
+            var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+            console.log(content)
+            $.ajax({
+                url: "{% url 'get_title' %}",
+                type: "POST",
+                data: {
+                    'content': content,
+                    'csrfmiddlewaretoken': csrftoken,
+                },
+                success: function(response) {
+                    console.log(response)
+                    var title = response.title;
+                    $('#id_title').val(title);
+                    $('#generated_title_hashtags').html('Generated Title: ' + title);
+                }
+            });
+        }
+        window.generateTitle = generateTitle;
+
+        function generateHashtags() {
+            var content = $('#id_content').val();
+            var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url: "{% url 'get_hashtags' %}",
+                type: "POST",
+                data: {
+                    'content': content,
+                    'csrfmiddlewaretoken': csrftoken,
+                },
+                success: function(response) {
+                    console.log(response)
+                    var hashtags = response.hashtags.join(', ');
+                    $('#id_hashtags').val(hashtags);
+                    $('#generated_title_hashtags').html('Generated Hashtags: ' + hashtags);
+                }
+            });
+        }
+        window.generateHashtags = generateHashtags;
     });
 </script>

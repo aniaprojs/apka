@@ -8,7 +8,7 @@ class Hashtag(models.Model):
         return self.name
 
 class Post(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=300)
     content = models.TextField()
     image = models.ImageField(upload_to='posts/', null=True, blank=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)

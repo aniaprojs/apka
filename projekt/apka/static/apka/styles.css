@@ -48,6 +48,7 @@ body {
     margin-left: 30px;
     text-align: left;
     gap: 8px;
+    margin-right: 50px;
 }
 
 .author {
@@ -56,11 +57,11 @@ body {
 }
 
 .create_post {
-    height: 400px;
+    height: 450px;
 }
 
 .hashtag {
-    color: rgb(50, 78, 168);
+    color: #b969a8;
 }
 
 #preview-img{

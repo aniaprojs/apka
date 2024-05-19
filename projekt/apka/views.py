@@ -10,6 +10,11 @@ from .forms import SignUpForm
 import requests
 from django.contrib.auth.decorators import login_required
 import uuid
+from nltk.corpus import stopwords 
+from nltk.tokenize import word_tokenize, sent_tokenize 
+import nltk
+from collections import Counter
+import spacy
 
 def login_view(request):
     if request.method == 'POST':
@@ -82,6 +87,14 @@ def index(request):
     return render(request, 'apka/index.html', context)
 
 @login_required
+def like_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    if not created:
+        like.delete()
+    return redirect('index')
+
+@login_required
 def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user == post.author:
@@ -119,11 +132,71 @@ def generate_image(request):
         return JsonResponse({'image_url': image_url})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-@login_required
-def like_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    like, created = Like.objects.get_or_create(user=request.user, post=post)
-    if not created:
-        like.delete()
-    return redirect('index')
+
+def get_hashtags(request):
+    if request.method == 'POST':
+        text = request.POST.get('content', '')
+        print(text)
+        nlp = spacy.load("en_core_web_sm")
+        doc = nlp(text)    
+        nouns = [token.text for token in doc if token.pos_ == "NOUN"]
+        adjectives = [token.text for token in doc if token.pos_ == "ADJ"]
+        noun_counts = Counter(nouns)
+        adjective_counts = Counter(adjectives)
+        top_nouns = noun_counts.most_common(4)
+        top_adjectives = adjective_counts.most_common(4)
+        hashtags = [noun[0] for noun in top_nouns] + [adj[0] for adj in top_adjectives]
+        print(hashtags)
+        return JsonResponse({'hashtags': hashtags})
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def get_title(request):
+    if request.method == 'POST':
+        text = request.POST.get('content', '')
+        nltk.download('punkt')
+        stopWords = set(stopwords.words("english")) 
+        words = word_tokenize(text)
+
+        # Creating a frequency table to keep the  
+        # score of each word    
+        freqTable = dict() 
+        for word in words: 
+            word = word.lower() 
+            if word in stopWords: 
+                continue
+            if word in freqTable: 
+                freqTable[word] += 1
+            else: 
+                freqTable[word] = 1
+
+        # Creating a dictionary to keep the score 
+        # of each sentence 
+        sentences = sent_tokenize(text) 
+        sentenceValue = dict() 
+        
+        for sentence in sentences: 
+            for word, freq in freqTable.items(): 
+                if word in sentence.lower(): 
+                    if sentence in sentenceValue: 
+                        sentenceValue[sentence] += freq
+                    else: 
+                        sentenceValue[sentence] = freq 
+        
+        sumValues = 0
+        for sentence in sentenceValue: 
+            sumValues += sentenceValue[sentence] 
+        
+        # Average value of a sentence from the original text 
+        # average = int(sumValues / len(sentenceValue)) 
+        
+        # Storing sentences into our summary. 
+        summary = ''
+        for sentence in sentences:
+            if len(sentence.split(' ')) < 25:
+                summary += " " + sentence 
+                break
+        print(summary)
+        return JsonResponse({'title': summary})
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
