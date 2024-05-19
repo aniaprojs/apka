@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Post
 from .forms import PostForm
 from django.http import JsonResponse
@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login, logout
 from .forms import SignUpForm
 from django.shortcuts import HttpResponse
 import requests
+from django.contrib.auth.decorators import login_required
+import uuid
 
 def login_view(request):
     if request.method == 'POST':
@@ -29,11 +31,9 @@ def logout_view(request):
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
-        print(form)
         if form.is_valid():
-            print("VALID")
             form.save()
-            return redirect('apka/login')
+            return render(request, 'apka/login.html')
     else:
         form = SignUpForm()
     return render(request, 'apka/signup.html', {'form': form})
@@ -43,7 +43,6 @@ def index(request):
         return redirect('logout')
     
     generated_image_url = request.session.pop('generated_image_url', None)
-    print(generated_image_url)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -64,17 +63,13 @@ def index(request):
     }
     return render(request, 'apka/index.html', context)
 
-def delete_post(request):
-    if request.method == 'POST':
-        post_id = request.POST.get('post_id')
-        try:
-            post = Post.objects.get(pk=post_id)
-            post.delete()
-            return HttpResponse('Post deleted successfully', status=200)
-        except Post.DoesNotExist:
-            return HttpResponse('Post does not exist', status=404)
-    return HttpResponse('Invalid request method', status=405)
-
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user == post.author:
+        post.delete()
+        return redirect('/apka')
+    return JsonResponse({'status': 'error'}, status=403)
 
 def generate_image(request):
     if request.method == 'POST':
@@ -90,16 +85,17 @@ def generate_image(request):
         )
         
         image_url = output[0]
-        
         image_response = requests.get(image_url)
+        image_uuid = str(uuid.uuid4())
+        image_extension = os.path.splitext(image_url)[1]
         
-        image_name = os.path.basename(image_url)
+        image_name = f"{image_uuid}{image_extension}"
+
         image_path = os.path.join(settings.MEDIA_ROOT, image_name)
         with open(image_path, 'wb') as f:
             f.write(image_response.content)
         
         relative_image_path = os.path.join(image_name)
-        print(relative_image_path)
         request.session['generated_image_url'] = relative_image_path
         
         return JsonResponse({'image_url': image_url})

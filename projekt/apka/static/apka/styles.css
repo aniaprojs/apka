@@ -31,6 +31,25 @@ body {
     margin-bottom: 12px;
 }
 
+.post {
+    display: flex;
+    flex-direction: row;
+}
+
+.delete {
+    display: flex;
+    flex-direction: column;
+    align-content: end;
+}
+
+.post_content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 30px;
+    text-align: left;
+    gap: 8px;
+}
+
 .create_post {
     height: 340px;
 }
@@ -55,7 +74,7 @@ body {
 }
 
 .content {
-    font-size: 12px;
+    font-size: 14px;
     clear: rgb(66, 66, 66);
 }
 
