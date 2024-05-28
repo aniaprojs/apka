@@ -46,6 +46,15 @@ class Like(models.Model):
     def __str__(self):
         return f"{self.user} likes {self.post}"
 
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} commented on {self.post.title}"
+
 class CustomUser(AbstractUser):
     groups = models.ManyToManyField(
         'auth.Group',

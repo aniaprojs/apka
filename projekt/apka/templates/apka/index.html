@@ -5,15 +5,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media site</title>
+    <title>Social Media Site</title>
     <link rel="stylesheet" type="text/css" href="{% static 'apka/styles.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="navbar">
-        <h1>AI social media site</h1>
+        <h1>AI Social Media Site</h1>
         <a class="right" href="{% url 'logout' %}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#b969a8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M9 12h12l-3 -3" /><path d="M18 15l3 -3" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#b969a8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                <path d="M9 12h12l-3 -3" />
+                <path d="M18 15l3 -3" />
+            </svg>
         </a>
     </div>
     <div class="main">
@@ -30,12 +35,10 @@
                     Upload image
                     <input type="file" id="id_image" name="image" accept="image/*" style="display: none;">
                 </label>
-            
                 <span>or</span>
                 <textarea class="form_content" id="textInput" placeholder="Enter prompt"></textarea>
                 <button type="button" onclick="generateImage()">Generate Image</button>
                 <input type="hidden" id="generated_image_url" name="generated_image_url">
-                        
                 <img id="preview-img" src="#" style="display: none;">
                 <button class="form_button" type="submit">Post</button>
             </form>
@@ -52,7 +55,11 @@
                     <div class="post">
                         <div>
                             <span class="author">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.5" stroke="#b969a8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.5" stroke="#b969a8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                </svg>
                                 {{ post.author }}
                             </span>
                         </div>
@@ -68,13 +75,56 @@
                                     #{{ hashtag.name }}
                                 {% endfor %}
                             </span>
+                            <div class="comments">
+                                <h3>Comments ({{ post.comments.count }})</h3>
+                                <hr>
+                                {% for comment in post.comments.all %}
+                                    <div class="post">
+                                        <span class="author">{{ comment.user }}</span>
+                                        <div class="post_content">
+                                            {% if comment.user == user %}
+                                                <div class="right">
+                                                    <form method="POST" action="{% url 'delete_comment' comment.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="delete_button">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                                <path d="M4 7l16 0" />
+                                                                <path d="M10 11l0 6" />
+                                                                <path d="M14 11l0 6" />
+                                                                <path d="M5 7l1 12a2 2 0 0 0 2 2l8 0a2 2 0 0 0 2 -2l1 -12" />
+                                                                <path d="M9 7l1 -3h4l1 3" />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            {% endif %}
+                                            <span class="content">{{ comment.content }}</span>
+                                            <span class="content">{{ comment.created_at }}</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <hr>
+                                <form method="POST" action="{% url 'add_comment' post.id %}">
+                                    {% csrf_token %}
+                                    <textarea name="content" rows="2" placeholder="Add a comment..."></textarea>
+                                    <button type="submit">Comment</button>
+                                </form>
+                            </div>
                         </div>
                         {% if post.author == user %}
                             <div class="right">
                                 <form method="POST" action="{% url 'delete_post' post.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="delete_button">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M4 7l16 0" />
+                                            <path d="M10 11l0 6" />
+                                            <path d="M14 11l0 6" />
+                                            <path d="M5 7l1 12a2 2 0 0 0 2 2l8 0a2 2 0 0 0 2 -2l1 -12" />
+                                            <path d="M9 7l1 -3h4l1 3" />
+                                        </svg>
                                     </button>
                                 </form>
                             </div>
@@ -85,9 +135,16 @@
                                     {% csrf_token %}
                                     <button type="submit">
                                         {% if post|is_liked_by_user:user %}
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart-broken" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#781716" fill="#ff2825" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /><path d="M12 6l-2 4l4 3l-2 4v3" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart-broken" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#781716" fill="#ff2825" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+                                                <path d="M12 6l-2 4l4 3l-2 4v3" />
+                                            </svg>
                                         {% else %}
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#781716" fill="#ff2825" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#781716" fill="#ff2825" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+                                            </svg>
                                         {% endif %}
                                     </button>
                                 </form>

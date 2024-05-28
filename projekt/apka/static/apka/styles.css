@@ -129,3 +129,23 @@ body {
 .form_button:hover {
     background-color: #b663a4;
 }
+
+.comment {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.delete-form {
+    align-self: flex-start;
+}
+
+.comment-content {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.comments hr {
+    margin: 15px 0;
+}

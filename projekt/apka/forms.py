@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import Post, User
+from .models import Post, User, Comment
 from django.contrib.auth.forms import UserCreationForm
 
 class PostForm(forms.ModelForm):
@@ -23,3 +23,11 @@ class SignUpForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         for fieldname in ['username', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Add a comment...'}),
+        }
