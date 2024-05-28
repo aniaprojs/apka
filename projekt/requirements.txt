@@ -1,5 +1,8 @@
-Django>=3.2.12
-replicate>=0.2.2
-python-dotenv>=0.19.1
-spacy
-python -m spacy download en_core_web_sm
+Django>=3.2,<4.0
+django-crispy-forms>=1.11.0
+Pillow>=8.0.1
+requests>=2.24.0
+replicate>=0.0.11
+nltk>=3.5
+spacy>=3.0.6
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.0.0/en_core_web_sm-3.0.0.tar.gz
