@@ -181,9 +181,8 @@ def get_title(request):
         nltk.download('punkt')
         stopWords = set(stopwords.words("english")) 
         words = word_tokenize(text)
-
-        # Creating a frequency table to keep the  
-        # score of each word    
+        
+        # Creating a frequency table to keep the  score of each word    
         freqTable = dict() 
         for word in words: 
             word = word.lower() 
@@ -194,8 +193,7 @@ def get_title(request):
             else: 
                 freqTable[word] = 1
 
-        # Creating a dictionary to keep the score 
-        # of each sentence 
+        # Creating a dictionary to keep the score of each sentence 
         sentences = sent_tokenize(text) 
         sentenceValue = dict() 
         
@@ -211,16 +209,8 @@ def get_title(request):
         for sentence in sentenceValue: 
             sumValues += sentenceValue[sentence] 
         
-        # Average value of a sentence from the original text 
-        # average = int(sumValues / len(sentenceValue)) 
-        
-        # Storing sentences into our summary. 
-        summary = ''
-        for sentence in sentences:
-            if len(sentence.split(' ')) < 25:
-                summary += " " + sentence 
-                break
-        print(summary)
+        # Highest value sentence will be the summary. 
+        summary = max(sentenceValue, key=sentenceValue.get)
         return JsonResponse({'title': summary})
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
